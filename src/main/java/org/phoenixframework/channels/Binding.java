@@ -1,4 +1,5 @@
-package org.phoenixframework.channels;
+package qa.qserv.providers.networking.socket;
+
 
 class Binding {
     private final String event;
@@ -20,8 +21,8 @@ class Binding {
     @Override
     public String toString() {
         return "Binding{" +
-            "event='" + event + '\'' +
-            ", callback=" + callback +
-            '}';
+                "event='" + event + '\'' +
+                ", callback=" + callback +
+                '}';
     }
 }

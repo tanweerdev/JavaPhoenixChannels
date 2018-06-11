@@ -1,4 +1,5 @@
-package org.phoenixframework.channels;
+package qa.qserv.providers.networking.socket;
+
 
 public interface IMessageCallback {
 

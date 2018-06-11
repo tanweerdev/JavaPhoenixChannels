@@ -1,4 +1,4 @@
-package org.phoenixframework.channels;
+package qa.qserv.providers.networking.socket;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -9,65 +9,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimerTask;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Push {
 
-    private static final Logger log = LoggerFactory.getLogger(Push.class);
-
-    private class TimeoutHook {
-
-        private ITimeoutCallback callback;
-
-        private final long ms;
-
-        private TimerTask timerTask;
-
-        public TimeoutHook(final long ms) {
-            this.ms = ms;
-        }
-
-        public ITimeoutCallback getCallback() {
-            return callback;
-        }
-
-        public long getMs() {
-            return ms;
-        }
-
-        public TimerTask getTimerTask() {
-            return timerTask;
-        }
-
-        public boolean hasCallback() {
-            return this.callback != null;
-        }
-
-        public void setCallback(final ITimeoutCallback callback) {
-            this.callback = callback;
-        }
-
-        public void setTimerTask(final TimerTask timerTask) {
-            this.timerTask = timerTask;
-        }
-    }
-
-    private Channel channel = null;
-
-    private String event = null;
-
-    private JsonNode payload = null;
 
     private final Map<String, List<IMessageCallback>> recHooks = new HashMap<>();
-
+    private final TimeoutHook timeoutHook;
+    private Channel channel = null;
+    private String event = null;
+    private JsonNode payload = null;
     private Envelope receivedEnvelope = null;
 
     private String refEvent = null;
 
     private boolean sent = false;
-
-    private final TimeoutHook timeoutHook;
 
     Push(final Channel channel, final String event, final JsonNode payload, final long timeout) {
         this.channel = channel;
@@ -144,7 +99,7 @@ public class Push {
 
     void send() throws IOException {
         final String ref = channel.getSocket().makeRef();
-        log.trace("Push send, ref={}", ref);
+
 
         this.refEvent = Socket.replyEventName(ref);
         this.receivedEnvelope = null;
@@ -207,5 +162,40 @@ public class Push {
     private void startTimeout() {
         this.timeoutHook.setTimerTask(createTimerTask());
         this.channel.scheduleTask(this.timeoutHook.getTimerTask(), this.timeoutHook.getMs());
+    }
+
+    private class TimeoutHook {
+
+        private final long ms;
+        private ITimeoutCallback callback;
+        private TimerTask timerTask;
+
+        public TimeoutHook(final long ms) {
+            this.ms = ms;
+        }
+
+        public ITimeoutCallback getCallback() {
+            return callback;
+        }
+
+        public void setCallback(final ITimeoutCallback callback) {
+            this.callback = callback;
+        }
+
+        public long getMs() {
+            return ms;
+        }
+
+        public TimerTask getTimerTask() {
+            return timerTask;
+        }
+
+        public void setTimerTask(final TimerTask timerTask) {
+            this.timerTask = timerTask;
+        }
+
+        public boolean hasCallback() {
+            return this.callback != null;
+        }
     }
 }

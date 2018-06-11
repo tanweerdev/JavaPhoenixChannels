@@ -1,4 +1,4 @@
-package org.phoenixframework.channels;
+package qa.qserv.providers.networking.socket;
 
 public enum ChannelState {
     CLOSED,

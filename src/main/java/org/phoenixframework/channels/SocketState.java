@@ -1,6 +1,6 @@
-package org.phoenixframework.channels;
+package qa.qserv.providers.networking.socket;
 
-/**
+/*
  * Created by Eoin on 24/04/2015.
  */
 public enum SocketState {

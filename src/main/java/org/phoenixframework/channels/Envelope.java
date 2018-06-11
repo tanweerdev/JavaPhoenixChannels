@@ -1,8 +1,12 @@
-package org.phoenixframework.channels;
+package qa.qserv.providers.networking.socket;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+
 
 public class Envelope {
     @JsonProperty
@@ -74,9 +78,9 @@ public class Envelope {
     @Override
     public String toString() {
         return "Envelope{" +
-            "topic='" + topic + '\'' +
-            ", event='" + event + '\'' +
-            ", payload=" + payload +
-            '}';
+                "topic='" + topic + '\'' +
+                ", event='" + event + '\'' +
+                ", payload=" + payload +
+                '}';
     }
 }

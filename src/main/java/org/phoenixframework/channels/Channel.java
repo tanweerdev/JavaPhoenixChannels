@@ -1,4 +1,4 @@
-package org.phoenixframework.channels;
+package qa.qserv.providers.networking.socket;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -10,8 +10,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Encapsulation of a Phoenix channel: a Socket, a topic and the channel's state.
@@ -20,25 +18,16 @@ public class Channel {
 
     private static final long DEFAULT_TIMEOUT = 5000;
 
-    private static final Logger log = LoggerFactory.getLogger(Channel.class);
 
     private final List<Binding> bindings = new ArrayList<>();
-
-    private Timer channelTimer = null;
-
     private final Push joinPush;
-
-    private boolean joinedOnce = false;
-
     private final JsonNode payload;
-
     private final LinkedBlockingDeque<Push> pushBuffer = new LinkedBlockingDeque<>();
-
     private final Socket socket;
-
-    private ChannelState state = ChannelState.CLOSED;
-
     private final String topic;
+    private Timer channelTimer = null;
+    private boolean joinedOnce = false;
+    private ChannelState state = ChannelState.CLOSED;
 
     public Channel(final String topic, final JsonNode payload, final Socket socket) {
         this.topic = topic;
@@ -114,7 +103,7 @@ public class Channel {
     public Push join() throws IllegalStateException, IOException {
         if (this.joinedOnce) {
             throw new IllegalStateException(
-                "Tried to join multiple times. 'join' can only be invoked once per channel");
+                    "Tried to join multiple times. 'join' can only be invoked once per channel");
         }
         this.joinedOnce = true;
         this.sendJoin();
@@ -193,7 +182,7 @@ public class Channel {
      * @throws IllegalStateException Thrown if the channel has not yet been joined
      */
     private Push push(final String event, final JsonNode payload, final long timeout)
-        throws IOException, IllegalStateException {
+            throws IOException, IllegalStateException {
         if (!this.joinedOnce) {
             throw new IllegalStateException("Unable to push event before channel has been joined");
         }
@@ -242,10 +231,10 @@ public class Channel {
     @Override
     public String toString() {
         return "Channel{" +
-            "topic='" + topic + '\'' +
-            ", message=" + payload +
-            ", bindings(" + bindings.size() + ")=" + bindings +
-            '}';
+                "topic='" + topic + '\'' +
+                ", message=" + payload +
+                ", bindings(" + bindings.size() + ")=" + bindings +
+                '}';
     }
 
     /**
@@ -273,7 +262,8 @@ public class Channel {
                 try {
                     Channel.this.rejoinUntilConnected();
                 } catch (IOException e) {
-                    log.error("Failed to rejoin", e);
+                    e.printStackTrace();
+                    //log.error("Failed to rejoin", e);
                 }
             }
         };

@@ -1,4 +1,4 @@
-package org.phoenixframework.channels;
+package qa.qserv.providers.networking.socket;
 
 public enum ChannelEvent {
     CLOSE("phx_close"),
@@ -9,6 +9,10 @@ public enum ChannelEvent {
 
     private final String phxEvent;
 
+    ChannelEvent(final String phxEvent) {
+        this.phxEvent = phxEvent;
+    }
+
     public static ChannelEvent getEvent(final String phxEvent) {
         for (final ChannelEvent ev : values()) {
             if (ev.getPhxEvent().equals(phxEvent)) {
@@ -16,10 +20,6 @@ public enum ChannelEvent {
             }
         }
         return null;
-    }
-
-    ChannelEvent(final String phxEvent) {
-        this.phxEvent = phxEvent;
     }
 
     public String getPhxEvent() {
