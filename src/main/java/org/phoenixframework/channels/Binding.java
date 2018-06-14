@@ -1,4 +1,4 @@
-package qa.qserv.providers.networking.socket;
+package org.phoenixframework.channels;
 
 
 class Binding {

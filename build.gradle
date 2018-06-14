@@ -62,14 +62,14 @@ publishing {
     publications {
         JavaPhoenixChannelsJar(MavenPublication) {
             from components.java
-            groupId 'com.github.eoinsha'
+            groupId 'com.github.tanweerdev'
             artifactId 'JavaPhoenixChannels'
             version '0.2'
         }
     }
 }
 
-bintray {
+/*bintray {
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_KEY')
     pkg {
@@ -80,4 +80,4 @@ bintray {
         vcsUrl = 'https://github.com/eoinsha/JavaPhoenixChannels.git'
     }
     publications = ['JavaPhoenixChannelsJar']
-}
+}*/
