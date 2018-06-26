@@ -69,15 +69,15 @@ publishing {
     }
 }
 
-/*bintray {
+bintray {
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_KEY')
     pkg {
-        repo = 'java-phoenix-channels'
+        repo = 'JavaPhoenixChannel'
         name = 'JavaPhoenixChannels'
         userOrg = 'javaphoenixchannels'
-        licenses = ['BSD-3']
-        vcsUrl = 'https://github.com/eoinsha/JavaPhoenixChannels.git'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/tanweerdev/JavaPhoenixChannels'
     }
     publications = ['JavaPhoenixChannelsJar']
-}*/
+}
