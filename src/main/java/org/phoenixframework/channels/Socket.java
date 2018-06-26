@@ -1,11 +1,13 @@
 package org.phoenixframework.channels;
 
-import android.util.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ import okio.ByteString;
 
 public class Socket {
 
-//    private static final Logger log = LoggerFactory.getLogger(Socket.class);
+    private static final Logger log = LoggerFactory.getLogger(Socket.class);
 
     public static final int RECONNECT_INTERVAL_MS = 5000;
     private static final int DEFAULT_HEARTBEAT_INTERVAL = 7000;
@@ -63,7 +65,7 @@ public class Socket {
     }
 
     public Socket(final String endpointUri, final int heartbeatIntervalInMs) {
-        Log.d("PhoenixSocket({})", endpointUri);
+        log.debug("PhoenixSocket({})", endpointUri);
         this.endpointUri = endpointUri;
         this.heartbeatInterval = heartbeatIntervalInMs;
         this.timer = new Timer("Reconnect Timer for " + endpointUri);
@@ -81,7 +83,7 @@ public class Socket {
      * @return A Channel instance to be used for sending and receiving events for the topic
      */
     public Channel chan(final String topic, final JsonNode payload) {
-        Log.d("chan: {}, {}", topic + " .. " + payload);
+        log.debug("chan: {}, {}", topic + " .. " + payload);
         final Channel channel = new Channel(topic, payload, Socket.this);
         synchronized (channels) {
             channels.add(channel);
@@ -90,7 +92,7 @@ public class Socket {
     }
 
     public void connect() throws IOException {
-        Log.d("socket", "connect");
+        log.debug("socket", "connect");
         disconnect();
         // No support for ws:// or ws:// in okhttp. See https://github.com/square/okhttp/issues/1652
         final String httpUrl = this.endpointUri.replaceFirst("^ws:", "http:")
@@ -100,7 +102,7 @@ public class Socket {
     }
 
     public void disconnect() throws IOException {
-        Log.d("socket", "disconnect");
+        log.debug("socket", "disconnect");
         if (webSocket != null) {
             webSocket.close(1001 /*CLOSE_GOING_AWAY*/, "Disconnected by client");
         }
@@ -175,7 +177,7 @@ public class Socket {
         node.set("payload", envelope.getPayload() == null ? objectMapper.createObjectNode() : envelope.getPayload());
         final String json = objectMapper.writeValueAsString(node);
 
-        Log.d("push:isConnected:JSON:", envelope + " " + isConnected() + " " + json);
+        log.debug("push:isConnected:JSON:", envelope + " " + isConnected() + " " + json);
 
         RequestBody body = RequestBody.create(MediaType.parse("text/xml"), json);
 
@@ -267,11 +269,11 @@ public class Socket {
         Socket.this.reconnectTimerTask = new TimerTask() {
             @Override
             public void run() {
-                Log.d("socket", "reconnectTimerTask run");
+                log.debug("socket", "reconnectTimerTask run");
                 try {
                     Socket.this.connect();
                 } catch (Exception e) {
-                    Log.d("socket", "Failed to reconnect to " + Socket.this.wsListener, e);
+                    log.debug("socket", "Failed to reconnect to " + Socket.this.wsListener, e);
                 }
             }
         };
@@ -282,14 +284,14 @@ public class Socket {
         Socket.this.heartbeatTimerTask = new TimerTask() {
             @Override
             public void run() {
-                Log.d("socket", "heartbeatTimerTask run");
+                log.debug("socket", "heartbeatTimerTask run");
                 if (Socket.this.isConnected()) {
                     try {
                         Envelope envelope = new Envelope("phoenix", "heartbeat",
                                 new ObjectNode(JsonNodeFactory.instance), Socket.this.makeRef());
                         Socket.this.push(envelope);
                     } catch (Exception e) {
-                        Log.d("socket", "Failed to send heartbeat", e);
+                        log.debug("socket", "Failed to send heartbeat", e);
                     }
                 }
             }
@@ -311,7 +313,7 @@ public class Socket {
 
         @Override
         public void onOpen(WebSocket webSocket, Response response) {
-            Log.d("WebSocket onOpen: {}", webSocket.toString());
+            log.debug("WebSocket onOpen: {}", webSocket.toString());
             Socket.this.webSocket = webSocket;
             cancelReconnectTimer();
 
@@ -326,7 +328,7 @@ public class Socket {
 
         @Override
         public void onMessage(WebSocket webSocket, String text) {
-            Log.d("onMessage: {}", text);
+            log.debug("onMessage: {}", text);
 
             try {
                 final Envelope envelope = objectMapper.readValue(text, Envelope.class);
@@ -342,7 +344,7 @@ public class Socket {
                     callback.onMessage(envelope);
                 }
             } catch (IOException e) {
-                Log.d("Failed to read payload", e.getLocalizedMessage());
+                log.debug("Failed to read payload", e.getLocalizedMessage());
             }
         }
 
@@ -357,7 +359,7 @@ public class Socket {
 
         @Override
         public void onClosed(WebSocket webSocket, int code, String reason) {
-            Log.d("WebSocket onClose {}/{}", code + " .. " + reason);
+            log.debug("WebSocket onClose {}/{}", code + " .. " + reason);
             Socket.this.webSocket = null;
 
             for (final ISocketCloseCallback callback : socketCloseCallbacks) {
@@ -367,7 +369,7 @@ public class Socket {
 
         @Override
         public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-            Log.d("socket", "WebSocket connection error", t);
+            log.debug("socket", "WebSocket connection error", t);
             try {
                 //TODO if there are multiple errorCallbacks do we really want to trigger
                 //the same channel error callbacks multiple times?
